@@ -358,7 +358,7 @@ class RayWorker:
                         # Remove/hide first line.
                         tracedLines = tracedLines[1:]
 
-                    linearray.extend(tracedLines)
+                    linearray.append(Part.makeWires(tracedLines))
 
                 except Exception as ex:
                     print(ex)
