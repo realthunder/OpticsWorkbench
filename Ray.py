@@ -287,7 +287,50 @@ class RayWorker:
             ray_placement_matrix *= fp.Placement.Matrix
             for line in linearray:
                 line.transformShape(ray_placement_matrix)
-        fp.Shape = Part.makeCompound(linearray)
+        shape = Part.makeCompound(linearray)
+
+        # name the edges and vertices so that path change won't break object
+        # that references any light rays
+        for i, wire in enumerate(shape.Wires):
+            postfix = f'@Ray{i}'
+            count = wire.countElement('Vertex')
+            for n,s in enumerate(wire.Vertexes):
+                if n == 0:
+                    # first vertex
+                    name = 'vB'
+                elif n == count-1:
+                    # last vertex
+                    name = 'vE'
+                else:
+                    # middle ones
+                    name = f'v{n}'
+                index = f'Vertex{shape.findSubShape(s)[1]}'
+                shape.setElementName(index, name+postfix)
+            count = wire.countElement('Edge')
+            for n,s in enumerate(wire.Edges):
+                if n == 0:
+                    # first edge
+                    name = 'eB'
+                elif n == count-1:
+                    # last edge
+                    name = 'eE'
+                else:
+                    # middle ones
+                    name = f'e{n}'
+                index = f'Edge{shape.findSubShape(s)[1]}'
+                shape.setElementName(index, name+postfix)
+            if count == 1:
+                # In case there is only one edge for this ray. Name it as last
+                # edge as well.
+                shape.setElementName(index, 'eE'+postfix)
+
+        # It's crucial to assign the shape tag to force compound child mapping,
+        # otherwise, child mapping only occurs if it has more than 5 child
+        # elements (i.e. sub shapes), and we'll have in consistent element
+        # names.
+        shape.Tag = -fp.ID
+        fp.Shape = shape
+
         if fp.Power == False:
             fp.ViewObject.LineColor = (0.5, 0.5, 0.0)
         else:
@@ -342,7 +385,8 @@ class RayWorker:
         # initialize ray in global coordinate
         pl = fp.getGlobalPlacement()
         linearray = []
-        for (pos, dir) in posdirarray:
+
+        for i, (pos, dir) in enumerate(posdirarray):
             ppos = pos + pl.Base
             pdir = pl.Rotation.multVec(dir)
             if fp.Power == True:
