@@ -242,9 +242,10 @@ class RayWorker:
                             fp.BeamDistance * (row - (fp.BeamNrRows - 1) / 2),
                             0
                         )
+                        dir = (fp.FocalPoint - pos).normalize()
+
                         # Transform position relative to placement
                         pos = pl.Rotation.multVec(pos)
-                        dir = (fp.FocalPoint - pos).normalize()
                         posdirarray.append((pos, dir))
             else:
                 for row in range(0, int(fp.BeamNrRows)):
