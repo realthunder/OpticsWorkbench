@@ -835,7 +835,7 @@ def PointVec(point):
 
 
 def isOpticalObject(obj):
-    return obj.TypeId == 'Part::FeaturePython' and hasattr(
+    return obj.Visibility and obj.TypeId == 'Part::FeaturePython' and hasattr(
         obj, 'OpticalType') and hasattr(obj, 'Base')
 
 
