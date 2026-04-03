@@ -94,7 +94,7 @@ class RayWorker:
 
         self.addNewProperties(fp)
         fp.Base = baseShape
-        fp.FocalPoint = focalPoint    
+        fp.FocalPoint = focalPoint
 
         if rayBundleType == '':
             if spherical:
@@ -132,6 +132,12 @@ class RayWorker:
 
             if hasattr(fp, 'Spherical') and fp.Spherical:
                 fp.RayBundleType = 'spherical'
+        if not hasattr(fp, 'OpticalElements'):
+            fp.addProperty(
+                'App::PropertyLinkList', 'OpticalElements', 'Ray',
+                translate('Ray', 'If not empty, then only trace rays through these optical object.')
+            )
+
 
     def onDocumentRestored(self, fp):
         self.addNewProperties(fp)
@@ -885,9 +891,14 @@ def isOpticalObject(obj):
 
 def isRelevantOptic(fp, obj):
     '''Determine if given object is a workbench optical component and if it should be considered in the ray calculation'''
+
     if hasattr(fp, "IgnoredOpticalElements"):
-        return (isOpticalObject(obj)
-                and (obj not in fp.IgnoredOpticalElements))
+        if obj in fp.IgnoredOpticalElements:
+            return False
+
+    objs = fp.OpticalElements
+    if objs and obj not in objs:
+        return False
 
     # for older documents where rays do not have the IgnoredOpticalElements field we
     # will just return the old function, which checks only if the object is of "OpticalType"

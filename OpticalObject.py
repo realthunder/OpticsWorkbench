@@ -38,7 +38,8 @@ class OpticalObjectWorker:
         fp.Proxy = self
 
     def execute(self, fp):
-        pass
+        # Ensure dependecy recompute working properly
+        fp.touch()
 
     def onChanged(self, fp, prop):
         pass
@@ -97,7 +98,8 @@ class LensWorker:
             fp.Material = '?'
 
     def execute(self, fp):
-        pass
+        # Ensure dependecy recompute working properly
+        fp.touch()
 
     def addNewPoperties(self, fp):
         if not hasattr(fp, 'Transparency'):
@@ -194,7 +196,8 @@ class GratingWorker:
             fp.Material = '?'
 
     def execute(self, fp):
-        pass
+        # Ensure dependecy recompute working properly
+        fp.touch()
 
     def addNewPoperties(self, fp):
         if not hasattr(fp, 'Transparency'):
