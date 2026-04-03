@@ -137,6 +137,10 @@ class RayWorker:
                 'App::PropertyLinkList', 'OpticalElements', 'Ray',
                 translate('Ray', 'If not empty, then only trace rays through these optical object.')
             )
+        if not hasattr(fp, 'RayLength'):
+            fp.addProperty(
+                'App::PropertyFloat', 'RayLength', 'Ray',
+                translate('Ray', 'Length of a ray'))
 
 
     def onDocumentRestored(self, fp):
@@ -409,13 +413,27 @@ class RayWorker:
                         # Remove/hide first line.
                         tracedLines = tracedLines[1:]
 
+                    if fp.RayLength > 0:
+                        length = fp.RayLength
+                        for n, line in enumerate(tracedLines):
+                            if line.Length >= length:
+                                p1 = line.Vertex1.Point
+                                p2 = line.Vertex2.Point
+                                d = (p2 - p1) * length / line.Length
+                                tracedLines[n] = Part.makeLine(p1, p1+d)
+                                del tracedLines[n+1:]
+                            else:
+                                length -= line.Length
+
                     linearray.append(Part.makeWires(tracedLines))
 
                 except Exception as ex:
                     print(ex)
                     traceback.print_exc()
             else:
-                linearray.append(Part.makeLine(ppos, ppos + pdir))
+                if length <= 0:
+                    length = pdir.Length
+                linearray.append(Part.makeLine(ppos, ppos + pdir * length / pdir.Length))
 
         return linearray
 
