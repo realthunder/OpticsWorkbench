@@ -1148,7 +1148,8 @@ class RedrawAll():
             'Pixmap': os.path.join(_icondir_, 'Anonymous_Lightbulb_Lit.svg'),
             'Accel': '',  # a default shortcut (optional)
             'MenuText': QT_TRANSLATE_NOOP('Start', '(Re)start simulation'),
-            'ToolTip': QT_TRANSLATE_NOOP('Start', '(Re)start simulation')
+            'ToolTip': QT_TRANSLATE_NOOP('Start', '(Re)start simulation'),
+            'CmdType': ' ',
         }
 
 
